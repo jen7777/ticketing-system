@@ -36,6 +36,12 @@ def create_tables():
         """
         cursor.execute(create_users_table)
         print("✓ Users table created")
+
+        cursor.execute("PRAGMA table_info(users)")
+        user_columns = {row["name"] for row in cursor.fetchall()}
+        if "password_hash" not in user_columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN password_hash TEXT")
+            print("✓ Users password_hash column added")
         
         # Create tickets table
         create_tickets_table = """

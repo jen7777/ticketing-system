@@ -1,8 +1,11 @@
 import "../styles/Navbar.css";
 
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../authContext.js";
 
 export default function Navbar() {
+  const { isAuthenticated, user, logout } = useAuth();
+
   return (
     <nav className="navbar navbar-expand-lg custom-navbar px-3">
       <NavLink className="navbar-brand" to="/">
@@ -30,31 +33,58 @@ export default function Navbar() {
 
       <div className="collapse navbar-collapse" id="navbarNav">
         <ul className="navbar-nav ms-auto">
+          {!isAuthenticated ? (
+            <>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/login">
+                  Login
+                </NavLink>
+              </li>
 
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/">
-              Dashboard
-            </NavLink>
-          </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/register">
+                  Register
+                </NavLink>
+              </li>
+            </>
+          ) : (
+            <>
 
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/tickets">
-              Tickets
-            </NavLink>
-          </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/">
+                  Dashboard
+                </NavLink>
+              </li>
 
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/create">
-              New Ticket
-            </NavLink>
-          </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/tickets">
+                  Tickets
+                </NavLink>
+              </li>
 
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/users">
-              Users
-            </NavLink>
-          </li>
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/create">
+                  New Ticket
+                </NavLink>
+              </li>
 
+              <li className="nav-item">
+                <NavLink className="nav-link" to="/users">
+                  Users
+                </NavLink>
+              </li>
+
+              <li className="nav-item">
+                <span className="nav-link">{user?.name}</span>
+              </li>
+
+              <li className="nav-item">
+                <button className="nav-link navbar-logout-btn" onClick={logout}>
+                  Logout
+                </button>
+              </li>
+            </>
+          )}
 
         </ul>
       </div>

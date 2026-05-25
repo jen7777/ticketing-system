@@ -31,33 +31,33 @@ const Dashboard = () => {
   const [tickets, setTickets] = useState([]);
   const [activity, setActivity] = useState([]);
 
-  async function fetchTickets() {
-    try {
-      const res = await API.get("/tickets");
-      const allTickets = Array.isArray(res.data) ? res.data : [];
-
-      setTickets(allTickets);
-
-      const activityFeed = allTickets
-        .map((ticket) => ({
-          id: ticket.id,
-          title: ticket.title,
-          status: ticket.status,
-          priority: ticket.priority,
-          updated_at: ticket.updated_at || ticket.created_at,
-        }))
-        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
-        .slice(0, 5);
-
-      setActivity(activityFeed);
-    } catch (err) {
-      console.error("Error fetching tickets:", err);
-      setTickets([]);
-      setActivity([]);
-    }
-  }
-
   useEffect(() => {
+    async function fetchTickets() {
+      try {
+        const res = await API.get("/tickets");
+        const allTickets = Array.isArray(res.data) ? res.data : [];
+
+        setTickets(allTickets);
+
+        const activityFeed = allTickets
+          .map((ticket) => ({
+            id: ticket.id,
+            title: ticket.title,
+            status: ticket.status,
+            priority: ticket.priority,
+            updated_at: ticket.updated_at || ticket.created_at,
+          }))
+          .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+          .slice(0, 5);
+
+        setActivity(activityFeed);
+      } catch (err) {
+        console.error("Error fetching tickets:", err);
+        setTickets([]);
+        setActivity([]);
+      }
+    }
+
     fetchTickets();
   }, []);
 

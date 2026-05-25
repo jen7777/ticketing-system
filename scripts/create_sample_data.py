@@ -6,9 +6,31 @@ Creates sample users and tickets in the database
 import requests
 
 BASE_URL = "http://localhost:5001/api"
+AUTH_EMAIL = "sample.admin@company.com"
+AUTH_PASSWORD = "password123"
+
+
+def get_auth_headers():
+    auth_user = {
+        "name": "Sample Admin",
+        "email": AUTH_EMAIL,
+        "password": AUTH_PASSWORD,
+        "role": "admin",
+    }
+    response = requests.post(f"{BASE_URL}/auth/register", json=auth_user)
+    if response.status_code not in [200, 201]:
+        response = requests.post(f"{BASE_URL}/auth/login", json={
+            "email": AUTH_EMAIL,
+            "password": AUTH_PASSWORD,
+        })
+    response.raise_for_status()
+    token = response.json()["token"]
+    return {"Authorization": f"Bearer {token}"}
 
 def create_sample_data():
     """Create sample users and ticket"""
+    headers = get_auth_headers()
+
     # Create users
     print("=" * 60)
     print("Creating sample users...")
@@ -26,8 +48,8 @@ def create_sample_data():
         "role": "customer"
     }
 
-    r1 = requests.post(f"{BASE_URL}/users", json=user1_data)
-    r2 = requests.post(f"{BASE_URL}/users", json=user2_data)
+    r1 = requests.post(f"{BASE_URL}/users", json=user1_data, headers=headers)
+    r2 = requests.post(f"{BASE_URL}/users", json=user2_data, headers=headers)
 
     print(f"✓ John Smith created: Status {r1.status_code}")
     if r1.status_code != 201:
@@ -41,7 +63,7 @@ def create_sample_data():
     print("Fetching user IDs...")
     print("=" * 60)
 
-    users = requests.get(f"{BASE_URL}/users").json()
+    users = requests.get(f"{BASE_URL}/users", headers=headers).json()
     print(f"Total users in system: {len(users)}")
 
     if len(users) >= 2:
@@ -65,7 +87,7 @@ def create_sample_data():
             "reporter": user2_id
         }
         
-        r = requests.post(f"{BASE_URL}/tickets", json=ticket_data)
+        r = requests.post(f"{BASE_URL}/tickets", json=ticket_data, headers=headers)
         
         if r.status_code in [200, 201]:
             print(f"✓ Ticket created successfully!")
@@ -80,7 +102,7 @@ def create_sample_data():
         print("All Tickets in System:")
         print("=" * 60)
         
-        tickets = requests.get(f"{BASE_URL}/tickets").json()
+        tickets = requests.get(f"{BASE_URL}/tickets", headers=headers).json()
         
         for i, ticket in enumerate(tickets, 1):
             status_map = {1: "Open", 2: "In Progress", 3: "Resolved"}

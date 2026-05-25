@@ -21,6 +21,7 @@ const UserForm = () => {
     name: "",
     email: "",
     role: "user",
+    password: "",
   });
   const [loading, setLoading] = useState(isEditMode);
   const [error, setError] = useState("");
@@ -29,7 +30,7 @@ const UserForm = () => {
     async function fetchUser() {
       try {
         const response = await API.get(`/users/${id}`);
-        setFormData(response.data);
+        setFormData({ ...response.data, password: "" });
         setError("");
       } catch (fetchError) {
         console.error("Error fetching user:", fetchError);
@@ -177,6 +178,23 @@ const UserForm = () => {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="workspace-field-group">
+              <label htmlFor="user-password">
+                {isEditMode ? "New Password" : "Password"}
+              </label>
+              <input
+                id="user-password"
+                type="password"
+                name="password"
+                className="workspace-input"
+                value={formData.password}
+                onChange={handleChange}
+                minLength="6"
+                required={!isEditMode}
+                placeholder={isEditMode ? "Leave blank to keep current password" : ""}
+              />
             </div>
 
             <div className="workspace-form-actions">
