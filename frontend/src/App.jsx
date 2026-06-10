@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import TicketList from "./components/TicketList.jsx";
@@ -13,9 +13,11 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Register from "./components/Register.jsx";
 
 function App() {
+  const Router = import.meta.env.BASE_URL === "/" ? BrowserRouter : HashRouter;
+
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <Router>
         <Navbar />
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -29,7 +31,7 @@ function App() {
           <Route path="/users/new" element={<ProtectedRoute><UserForm /></ProtectedRoute>} />
           <Route path="/users/:id" element={<ProtectedRoute><UserForm /></ProtectedRoute>} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </AuthProvider>
   );
 }

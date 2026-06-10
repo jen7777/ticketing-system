@@ -1,13 +1,16 @@
 import os
+from pathlib import Path
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from app.auth.auth_utils import login_required, current_user
 from app.controllers import auth_controller as ac
 from app.controllers import ticket_controller as tc
 from app.controllers import user_controller as uc
 
-app = Flask(__name__)
+FRONTEND_DIST = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+
+app = Flask(__name__, static_folder=str(FRONTEND_DIST), static_url_path="")
 CORS(app)
 
 # ============ AUTH ============
@@ -161,9 +164,25 @@ def delete_ticket(ticket_id):
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_frontend(path):
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+
+    if not FRONTEND_DIST.exists():
+        return jsonify({"error": "Frontend build not found"}), 404
+
+    requested_file = FRONTEND_DIST / path
+    if path and requested_file.is_file():
+        return send_from_directory(FRONTEND_DIST, path)
+
+    return send_from_directory(FRONTEND_DIST, "index.html")
+
+
 if __name__ == '__main__':
     app.run(
         host=os.getenv("FLASK_HOST", "0.0.0.0"),
         debug=os.getenv("FLASK_DEBUG", "false").lower() == "true",
-        port=int(os.getenv("FLASK_PORT", "5001")),
+        port=int(os.getenv("PORT", os.getenv("FLASK_PORT", "5001"))),
     )
